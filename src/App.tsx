@@ -1,19 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Calendar, 
-  Users, 
   CheckCircle, 
   AlertTriangle, 
   Info, 
   Settings, 
   RefreshCw, 
-  UserCheck, 
-  ChevronRight, 
-  X, 
-  Clock, 
-  Lock,
-  Heart,
-  ChevronDown,
   Sun,
   Moon
 } from 'lucide-react';
