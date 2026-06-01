@@ -25,6 +25,7 @@ interface SlotData {
   waitEndRow: number | null;
   helpersStartRow: number | null;
   helpersEndRow: number | null;
+  customNotice?: string;
 }
 
 interface TabData {
@@ -53,6 +54,7 @@ export default function App() {
   const [isUrlConfigured, setIsUrlConfigured] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string>('');
   const [sheetData, setSheetData] = useState<SheetResponse | null>(null);
+  const [eventDate, setEventDate] = useState<string>('Tuesday, June 30th 2026');
   const [loading, setLoading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -72,53 +74,35 @@ export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const stored = localStorage.getItem('app_theme');
     if (stored === 'light' || stored === 'dark') return stored;
-    
-    // Check browser preference
-    if (window.matchMedia) {
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-      if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
-    }
-    
-    return 'light'; // Default fallback
+    return 'dark';
   });
 
-  // Sync theme class to document body
   useEffect(() => {
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-    }
+    document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
-  // Check env and localStorage on mount
+  // Load configured Web App URL from env
   useEffect(() => {
-    const envUrl = import.meta.env.VITE_APPS_SCRIPT_URL || '';
-    const storedUrl = localStorage.getItem('apps_script_url') || '';
-    // Hardcoded fallback for seamless production deployment
-    const fallbackUrl = 'https://script.google.com/macros/s/AKfycbwy566dLLPAMUW--v7XZGW1kTMx3xWatdpiwDdIGZxxmCQT7DQ7KftPecoi2EIWyTUY9Q/exec';
-    const finalUrl = envUrl || storedUrl || fallbackUrl;
-
-    if (finalUrl) {
-      setAppsScriptUrl(finalUrl);
+    const envUrl = import.meta.env.VITE_APPS_SCRIPT_URL;
+    if (envUrl) {
+      setAppsScriptUrl(envUrl);
       setIsUrlConfigured(true);
     }
   }, []);
 
-  // Fetch sheet data when URL is configured
+  // Poll for data updates every 30 seconds if configured
   useEffect(() => {
-    if (!appsScriptUrl || !isUrlConfigured) return;
+    if (!isUrlConfigured || !appsScriptUrl) return;
 
     fetchData(true);
 
-    // Setup 30s polling
     const interval = setInterval(() => {
       fetchData(false);
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [appsScriptUrl, isUrlConfigured]);
+  }, [isUrlConfigured, appsScriptUrl]);
 
   // Sync validation errors when inputs change
   useEffect(() => {
@@ -126,7 +110,7 @@ export default function App() {
   }, [names, numSlots, activeSignup]);
 
   const addToast = (type: 'success' | 'error', text: string) => {
-    const id = Date.now().toString();
+    const id = Math.random().toString(36).substr(2, 9);
     setToasts(prev => [...prev, { id, type, text }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
@@ -145,12 +129,26 @@ export default function App() {
       if (data.error) {
         throw new Error(data.error);
       }
+
+      let sheets: SheetResponse = {};
+      let dateVal = 'Tuesday, June 30th 2026';
+
+      if (data.sheets) {
+        sheets = data.sheets;
+        if (data.generalInfo && data.generalInfo.date) {
+          dateVal = data.generalInfo.date;
+        }
+      } else {
+        // Fallback for older Apps Script responses
+        sheets = data;
+      }
       
-      setSheetData(data);
+      setSheetData(sheets);
+      setEventDate(dateVal);
       setConnectionError('');
       
       // Set active section to first sheet name if not set
-      const sheetNames = Object.keys(data);
+      const sheetNames = Object.keys(sheets);
       if (sheetNames.length > 0 && !activeSection) {
         setActiveSection(sheetNames[0]);
       }
@@ -423,7 +421,7 @@ export default function App() {
       <header className="app-header">
         <h1 className="app-title">Temple Day Signup</h1>
         <div style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-secondary)', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
-          Tuesday, June 30th 2026
+          {eventDate}
         </div>
         <div style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--accent)', marginTop: '0rem', marginBottom: '0.75rem', fontFamily: "'Outfit', sans-serif" }}>
           Lansing Michigan Stake
@@ -516,6 +514,23 @@ export default function App() {
                 </div>
               )}
 
+              {section.sheetName === "Baptistry" && (
+                <div style={{
+                  background: '#1f2937',
+                  color: '#fbbf24',
+                  border: '1px solid #d97706',
+                  borderRadius: '12px',
+                  padding: '1rem 1.5rem',
+                  marginBottom: '1.5rem',
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  textAlign: 'center',
+                  letterSpacing: '0.05em'
+                }}>
+                  If you have a large group from the same unit, please have your unit leader contact President Earl.
+                </div>
+              )}
+
               {/* Grid of Slots in this Tab */}
               <div className="slots-grid">
                 {section.slots.map((slot, sIdx) => {
@@ -530,9 +545,9 @@ export default function App() {
                   const helpersFilled = slot.helpersSignedUp.length;
                   const helpersLeft = slot.helpersCapacity - helpersFilled;
 
-                  // Column notices for Baptistry (ADULT / YOUTH differences)
-                  let customNotice = '';
-                  if (isBaptistry) {
+                  // Column notices from sheet data (fallback to default if customNotice is empty/missing)
+                  let customNotice = slot.customNotice || '';
+                  if (!customNotice && isBaptistry) {
                     if (sIdx === 0) {
                       customNotice = 'Adult / YSA Only (18+)';
                     } else {
