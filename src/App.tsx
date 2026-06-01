@@ -418,6 +418,30 @@ export default function App() {
         ))}
       </div>
 
+      {isPolling && (
+        <div style={{
+          position: 'fixed',
+          top: '1.5rem',
+          right: '1.5rem',
+          zIndex: 1000,
+          fontSize: '0.85rem',
+          color: 'var(--primary)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          background: 'rgba(30, 41, 59, 0.7)',
+          border: '1px solid var(--primary)',
+          padding: '0.5rem 0.9rem',
+          borderRadius: '100px',
+          backdropFilter: 'blur(12px)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
+          fontWeight: 600,
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <RefreshCw size={14} className="spinner" /> Syncing live...
+        </div>
+      )}
+
       <header className="app-header">
         <h1 className="app-title">Temple Day Signup</h1>
         <div style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-secondary)', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
@@ -430,11 +454,6 @@ export default function App() {
           Sign up for Temple Day events below.
         </p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          {isPolling && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <RefreshCw size={14} className="spinner" /> Syncing live...
-            </span>
-          )}
            <button 
             onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
             style={{ 
