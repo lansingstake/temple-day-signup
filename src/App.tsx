@@ -493,7 +493,7 @@ export default function App() {
                   {section.sheetName}
                 </h2>
                 <span className="badge badge-available">
-                  {section.slots.length} Slots Available
+                  {section.slots.length} Session Times Available
                 </span>
               </div>
 
