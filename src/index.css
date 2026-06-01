@@ -103,9 +103,9 @@ h1, h2, h3, h4 {
 }
 
 .nav-item {
-  color: var(--text-secondary);
+  color: #ffffff;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.9rem;
   padding: 0.5rem 1.25rem;
   border-radius: 100px;
@@ -114,9 +114,9 @@ h1, h2, h3, h4 {
 }
 
 .nav-item:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .nav-item.active {
