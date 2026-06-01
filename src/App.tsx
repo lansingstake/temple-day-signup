@@ -186,13 +186,6 @@ export default function App() {
     setIsUrlConfigured(true);
   };
 
-  const handleDisconnect = () => {
-    localStorage.removeItem('apps_script_url');
-    setAppsScriptUrl('');
-    setIsUrlConfigured(false);
-    setSheetData(null);
-  };
-
   const handleStartSignup = (tab: string, slot: string, type: 'main' | 'wait' | 'helpers') => {
     setActiveSignup({ tab, slot, type });
     setNumSlots(1);
