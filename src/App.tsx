@@ -305,7 +305,10 @@ export default function App() {
     }
 
     if (numSlots > available) {
-      addToast('error', `Cannot complete signup. Only ${available} slot(s) left.`);
+      const msg = available === 0 
+        ? "Cannot complete signup. All slots have been taken for this session time."
+        : `Cannot complete signup. Only ${available} slot(s) left.`;
+      addToast('error', msg);
       return;
     }
 
@@ -625,7 +628,11 @@ export default function App() {
                               {numSlots > mainLeft && (
                                 <div className="warning-label">
                                   <AlertTriangle size={14} />
-                                  <span>Only {mainLeft} slots available. Please enter a valid amount.</span>
+                                  <span>
+                                    {mainLeft === 0 
+                                      ? "All slots have been taken for this session time." 
+                                      : `Only ${mainLeft} slots available. Please enter a valid amount.`}
+                                  </span>
                                 </div>
                               )}
 
@@ -739,7 +746,11 @@ export default function App() {
                                 {numSlots > waitLeft && (
                                   <div className="warning-label">
                                     <AlertTriangle size={14} />
-                                    <span>Only {waitLeft} waitlist slots available.</span>
+                                    <span>
+                                      {waitLeft === 0 
+                                        ? "All slots have been taken for this session time." 
+                                        : `Only ${waitLeft} waitlist slots available.`}
+                                    </span>
                                   </div>
                                 )}
 
@@ -855,7 +866,11 @@ export default function App() {
                                 {numSlots > helpersLeft && (
                                   <div className="warning-label">
                                     <AlertTriangle size={14} />
-                                    <span>Only {helpersLeft} helper slots available.</span>
+                                    <span>
+                                      {helpersLeft === 0 
+                                        ? "All slots have been taken for this session time." 
+                                        : `Only ${helpersLeft} helper slots available.`}
+                                    </span>
                                   </div>
                                 )}
 
