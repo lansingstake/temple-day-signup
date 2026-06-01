@@ -419,7 +419,10 @@ export default function App() {
 
       <header className="app-header">
         <h1 className="app-title">Temple Day Signup</h1>
-        <div style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--accent)', marginTop: '-0.25rem', marginBottom: '0.75rem', fontFamily: "'Outfit', sans-serif" }}>
+        <div style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-secondary)', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
+          Tuesday, June 30th 2026
+        </div>
+        <div style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--accent)', marginTop: '0rem', marginBottom: '0.75rem', fontFamily: "'Outfit', sans-serif" }}>
           Lansing Michigan Stake
         </div>
         <p className="app-subtitle">
