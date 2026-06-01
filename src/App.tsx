@@ -82,11 +82,15 @@ export default function App() {
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
-  // Load configured Web App URL from env
+  // Load configured Web App URL from env, localStorage, or fallback
   useEffect(() => {
-    const envUrl = import.meta.env.VITE_APPS_SCRIPT_URL;
-    if (envUrl) {
-      setAppsScriptUrl(envUrl);
+    const envUrl = import.meta.env.VITE_APPS_SCRIPT_URL || '';
+    const storedUrl = localStorage.getItem('apps_script_url') || '';
+    const fallbackUrl = 'https://script.google.com/macros/s/AKfycbwy566dLLPAMUW--v7XZGW1kTMx3xWatdpiwDdIGZxxmCQT7DQ7KftPecoi2EIWyTUY9Q/exec';
+    const finalUrl = envUrl || storedUrl || fallbackUrl;
+
+    if (finalUrl) {
+      setAppsScriptUrl(finalUrl);
       setIsUrlConfigured(true);
     }
   }, []);
