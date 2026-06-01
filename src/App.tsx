@@ -7,7 +7,8 @@ import {
   Settings, 
   RefreshCw, 
   Sun,
-  Moon
+  Moon,
+  Play
 } from 'lucide-react';
 
 interface SlotData {
@@ -457,6 +458,40 @@ export default function App() {
         <p className="app-subtitle">
           Sign up for Temple Day events below.
         </p>
+        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+          <a
+            href="https://drive.google.com/file/d/1wLgQEKjxEY47lgT6jQYbuDUs6leJMb1r/view?usp=drive_link"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%)',
+              color: '#fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              textDecoration: 'none',
+              transition: 'all 0.25s ease',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              cursor: 'pointer'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(99, 102, 241, 0.35)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)';
+            }}
+          >
+            <Play size={12} fill="currentColor" />
+            <span>How to Video</span>
+          </a>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
            <button 
             onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
