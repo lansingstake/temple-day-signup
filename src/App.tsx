@@ -203,8 +203,10 @@ export default function App() {
   };
 
   const handleNumSlotsChange = (val: number) => {
-    const clamped = Math.max(1, val);
-    setNumSlots(clamped);
+    setNumSlots(val);
+    
+    // For resizing fields, fallback to 1 if empty/NaN
+    const clamped = Math.max(1, isNaN(val) || val === 0 ? 1 : val);
     
     // Resize names array
     setNames(prev => {
@@ -577,14 +579,36 @@ export default function App() {
                             <form onSubmit={handleSubmit} className="signup-form-expand">
                               <div className="form-group">
                                 <label className="form-label">Number of People:</label>
-                                <input 
-                                  type="number" 
-                                  min={1} 
-                                  max={mainLeft}
-                                  value={numSlots} 
-                                  onChange={(e) => handleNumSlotsChange(parseInt(e.target.value) || 1)}
-                                  className="input-number"
-                                />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <button 
+                                    type="button" 
+                                    onClick={() => handleNumSlotsChange(Math.max(1, (numSlots || 1) - 1))}
+                                    style={{ padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1.1rem', cursor: 'pointer', userSelect: 'none' }}
+                                  >
+                                    -
+                                  </button>
+                                  <input 
+                                    type="number" 
+                                    min={1} 
+                                    max={mainLeft}
+                                    value={isNaN(numSlots) || numSlots === 0 ? '' : numSlots} 
+                                    onChange={(e) => handleNumSlotsChange(parseInt(e.target.value))}
+                                    onBlur={() => {
+                                      if (isNaN(numSlots) || numSlots < 1) {
+                                        handleNumSlotsChange(1);
+                                      }
+                                    }}
+                                    className="input-number"
+                                    style={{ textAlign: 'center', maxWidth: '80px' }}
+                                  />
+                                  <button 
+                                    type="button" 
+                                    onClick={() => handleNumSlotsChange(Math.min(mainLeft, (numSlots || 1) + 1))}
+                                    style={{ padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1.1rem', cursor: 'pointer', userSelect: 'none' }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
                               </div>
 
                               {numSlots > mainLeft && (
@@ -669,14 +693,36 @@ export default function App() {
                               <form onSubmit={handleSubmit} className="signup-form-expand">
                                 <div className="form-group">
                                   <label className="form-label">Number of People:</label>
-                                  <input 
-                                    type="number" 
-                                    min={1} 
-                                    max={waitLeft}
-                                    value={numSlots} 
-                                    onChange={(e) => handleNumSlotsChange(parseInt(e.target.value) || 1)}
-                                    className="input-number"
-                                  />
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleNumSlotsChange(Math.max(1, (numSlots || 1) - 1))}
+                                      style={{ padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1.1rem', cursor: 'pointer', userSelect: 'none' }}
+                                    >
+                                      -
+                                    </button>
+                                    <input 
+                                      type="number" 
+                                      min={1} 
+                                      max={waitLeft}
+                                      value={isNaN(numSlots) || numSlots === 0 ? '' : numSlots} 
+                                      onChange={(e) => handleNumSlotsChange(parseInt(e.target.value))}
+                                      onBlur={() => {
+                                        if (isNaN(numSlots) || numSlots < 1) {
+                                          handleNumSlotsChange(1);
+                                        }
+                                      }}
+                                      className="input-number"
+                                      style={{ textAlign: 'center', maxWidth: '80px' }}
+                                    />
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleNumSlotsChange(Math.min(waitLeft, (numSlots || 1) + 1))}
+                                      style={{ padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1.1rem', cursor: 'pointer', userSelect: 'none' }}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </div>
 
                                 {numSlots > waitLeft && (
@@ -763,14 +809,36 @@ export default function App() {
                               <form onSubmit={handleSubmit} className="signup-form-expand">
                                 <div className="form-group">
                                   <label className="form-label">Number of Helpers:</label>
-                                  <input 
-                                    type="number" 
-                                    min={1} 
-                                    max={helpersLeft}
-                                    value={numSlots} 
-                                    onChange={(e) => handleNumSlotsChange(parseInt(e.target.value) || 1)}
-                                    className="input-number"
-                                  />
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleNumSlotsChange(Math.max(1, (numSlots || 1) - 1))}
+                                      style={{ padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1.1rem', cursor: 'pointer', userSelect: 'none' }}
+                                    >
+                                      -
+                                    </button>
+                                    <input 
+                                      type="number" 
+                                      min={1} 
+                                      max={helpersLeft}
+                                      value={isNaN(numSlots) || numSlots === 0 ? '' : numSlots} 
+                                      onChange={(e) => handleNumSlotsChange(parseInt(e.target.value))}
+                                      onBlur={() => {
+                                        if (isNaN(numSlots) || numSlots < 1) {
+                                          handleNumSlotsChange(1);
+                                        }
+                                      }}
+                                      className="input-number"
+                                      style={{ textAlign: 'center', maxWidth: '80px' }}
+                                    />
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleNumSlotsChange(Math.min(helpersLeft, (numSlots || 1) + 1))}
+                                      style={{ padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1.1rem', cursor: 'pointer', userSelect: 'none' }}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </div>
 
                                 {numSlots > helpersLeft && (
