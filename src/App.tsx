@@ -104,7 +104,9 @@ export default function App() {
   useEffect(() => {
     const envUrl = import.meta.env.VITE_APPS_SCRIPT_URL || '';
     const storedUrl = localStorage.getItem('apps_script_url') || '';
-    const finalUrl = envUrl || storedUrl;
+    // Hardcoded fallback for seamless production deployment
+    const fallbackUrl = 'https://script.google.com/macros/s/AKfycbwy566dLLPAMUW--v7XZGW1kTMx3xWatdpiwDdIGZxxmCQT7DQ7KftPecoi2EIWyTUY9Q/exec';
+    const finalUrl = envUrl || storedUrl || fallbackUrl;
 
     if (finalUrl) {
       setAppsScriptUrl(finalUrl);
