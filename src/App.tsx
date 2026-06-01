@@ -553,8 +553,16 @@ export default function App() {
                       </div>
 
                       {customNotice && (
-                        <div className="notice-banner" style={{ margin: '0.25rem 0 0.5rem 0', fontSize: '0.8rem', padding: '0.5rem 0.75rem' }}>
-                          <Info size={12} />
+                        <div className="notice-banner" style={{ 
+                          margin: '0.5rem 0 0.75rem 0', 
+                          fontSize: '0.95rem', 
+                          fontWeight: '700', 
+                          padding: '0.65rem 0.9rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          <Info size={16} style={{ flexShrink: 0 }} />
                           <span>{customNotice}</span>
                         </div>
                       )}
