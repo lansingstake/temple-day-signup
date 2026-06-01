@@ -454,21 +454,6 @@ export default function App() {
             {theme === 'light' ? <Moon size={12} /> : <Sun size={12} />}
             <span>Mode: {theme === 'light' ? 'Dark' : 'Light'}</span>
           </button>
-          
-          <button 
-            onClick={handleDisconnect} 
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
-              color: 'var(--text-muted)', 
-              fontSize: '0.8rem', 
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              padding: '0'
-            }}
-          >
-            Disconnect Sheet
-          </button>
         </div>
       </header>
 
