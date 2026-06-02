@@ -1020,7 +1020,7 @@ export default function App() {
                                 className="signup-trigger-btn"
                                 style={{ background: 'linear-gradient(135deg, var(--accent) 0%, #d97706 100%)', boxShadow: '0 4px 12px var(--accent-glow)' }}
                               >
-                                {helpersLeft <= 0 ? 'Helpers Full' : 'Volunteer as Helper'}
+                                {helpersLeft <= 0 ? 'Helpers Full' : 'Volunteer as Priesthood Helper'}
                               </button>
                             )}
                           </div>
