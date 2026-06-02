@@ -79,6 +79,11 @@ export default function App() {
   });
 
   useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app_theme', theme);
   }, [theme]);
@@ -406,7 +411,7 @@ export default function App() {
     return (
       <div className="loading-screen">
         <div className="spinner"></div>
-        <div className="loading-text">Synchronizing with Temple Sheet...</div>
+        <div className="loading-text">Syncing ... </div>
       </div>
     );
   }

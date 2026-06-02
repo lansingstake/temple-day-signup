@@ -190,7 +190,7 @@ h1, h2, h3, h4 {
 /* Slot Card styling */
 .slot-card {
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid #6B6B6B;
   border-radius: 16px;
   padding: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -215,7 +215,7 @@ h1, h2, h3, h4 {
 
 .slot-card:hover {
   background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: #9b9b9b;
   transform: translateY(-2px);
 }
 
@@ -780,11 +780,11 @@ body.light-theme .nav-item.active {
 
 body.light-theme .slot-card {
   background: rgba(0, 0, 0, 0.01);
-  border-color: rgba(0, 0, 0, 0.05);
+  border-color: #6B6B6B;
 }
 body.light-theme .slot-card:hover {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: #4b4b4b;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
