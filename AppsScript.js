@@ -73,12 +73,12 @@ function doPost(e) {
       });
       
       // Trigger email notification for removals
-      sendNotificationEmail("remove", { entries: removals });
+      var emailResult = sendNotificationEmail("remove", { entries: removals });
       
       if (errors.length > 0) {
-         return makeJSONResponse({ status: "success_with_errors", message: "Issues: " + errors.join(", ") });
+         return makeJSONResponse({ status: "success_with_errors", message: "Issues: " + errors.join(", ") + " | Email status: " + JSON.stringify(emailResult) });
       }
-      return makeJSONResponse({ status: "success", message: "Successfully removed names!" });
+      return makeJSONResponse({ status: "success", message: "Successfully removed names! (Email status: " + (emailResult ? emailResult.message : "unknown") + ")" });
     }
     
     var sheet = wb.getSheetByName(data.tab);
@@ -144,9 +144,9 @@ function doPost(e) {
     }
     
     // Trigger email notification for signups
-    sendNotificationEmail("signup", { entries: addedEntries });
+    var emailResult = sendNotificationEmail("signup", { entries: addedEntries });
     
-    return makeJSONResponse({ status: "success", message: "Successfully signed up!" });
+    return makeJSONResponse({ status: "success", message: "Successfully signed up! (Email status: " + (emailResult ? emailResult.message : "unknown") + ")" });
     
   } catch (err) {
     return makeJSONResponse({ status: "error", message: err.toString() });
@@ -163,19 +163,19 @@ function sendNotificationEmail(actionType, detailsObj) {
   try {
     var wb = SpreadsheetApp.getActiveSpreadsheet();
     var generalSheet = wb.getSheetByName("General Info");
-    if (!generalSheet) return;
+    if (!generalSheet) return { success: false, message: "General Info tab not found" };
     
     // Read configuration from General Info tab
     var emailAddresses = generalSheet.getRange(7, 2).getValue().toString().trim();
-    if (!emailAddresses) return;
+    if (!emailAddresses) return { success: false, message: "No email found in B7" };
     
     var signupVal = generalSheet.getRange(8, 2).getValue();
     var removeVal = generalSheet.getRange(9, 2).getValue();
     var notifyOnSignup = (signupVal === true || signupVal.toString().toLowerCase() === "true");
     var notifyOnRemove = (removeVal === true || removeVal.toString().toLowerCase() === "true");
     
-    if (actionType === "signup" && !notifyOnSignup) return;
-    if (actionType === "remove" && !notifyOnRemove) return;
+    if (actionType === "signup" && !notifyOnSignup) return { success: false, message: "Signup notification disabled in B8 (Value: " + signupVal + ")" };
+    if (actionType === "remove" && !notifyOnRemove) return { success: false, message: "Remove notification disabled in B9 (Value: " + removeVal + ")" };
     
     var subject = "Temple Day Signup: " + (actionType === "signup" ? "New Signup" : "Name Removed");
     var body = (actionType === "signup" ? "The following names have signed up:\n\n" : "The following names have been removed:\n\n");
@@ -192,9 +192,11 @@ function sendNotificationEmail(actionType, detailsObj) {
       subject: subject,
       body: body
     });
+    
+    return { success: true, message: "Sent successfully to " + emailAddresses };
   } catch (err) {
-    // Silently fail if email fails to avoid breaking the user experience
-    console.error("Email notification failed: " + err.toString());
+    // Silently fail if email fails to avoid breaking the user experience, but return the error
+    return { success: false, message: "MailApp Error: " + err.toString() };
   }
 }
 
