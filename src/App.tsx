@@ -121,10 +121,14 @@ export default function App() {
 
     const poll = async () => {
       await fetchData(false);
-      timeoutId = setTimeout(poll, refreshIntervalRef.current);
+      if (refreshIntervalRef.current > 0) {
+        timeoutId = setTimeout(poll, refreshIntervalRef.current);
+      }
     };
 
-    timeoutId = setTimeout(poll, refreshIntervalRef.current);
+    // The first fetchData call is made above. We want to wait for it to finish and populate the interval
+    // So we use setTimeout to start the polling loop after a brief delay
+    timeoutId = setTimeout(poll, refreshIntervalRef.current > 0 ? refreshIntervalRef.current : 30000);
 
     return () => clearTimeout(timeoutId);
   }, [isUrlConfigured, appsScriptUrl]);
@@ -164,7 +168,7 @@ export default function App() {
           if (data.generalInfo.date) {
             dateVal = data.generalInfo.date;
           }
-          if (data.generalInfo.refreshIntervalSeconds) {
+          if (data.generalInfo.refreshIntervalSeconds !== undefined) {
             refreshIntervalRef.current = data.generalInfo.refreshIntervalSeconds * 1000;
           }
         }

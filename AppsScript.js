@@ -222,9 +222,15 @@ function parseGeneralInfo(sheet) {
   
   // Parse refresh interval from B2 (row 2, col 2 is getRange(2,2))
   var refreshVal = sheet.getRange(2, 2).getValue();
-  var refreshIntervalSeconds = parseInt(refreshVal, 10);
-  if (isNaN(refreshIntervalSeconds) || refreshIntervalSeconds <= 0) {
-    refreshIntervalSeconds = 30; // Default to 30s
+  var refreshIntervalSeconds;
+  
+  if (refreshVal === 0 || refreshVal.toString().trim() === "0") {
+    refreshIntervalSeconds = 0; // Disable polling
+  } else {
+    refreshIntervalSeconds = parseInt(refreshVal, 10);
+    if (isNaN(refreshIntervalSeconds) || refreshIntervalSeconds < 0) {
+      refreshIntervalSeconds = 30; // Default to 30s
+    }
   }
   
   return { date: dateStr, refreshIntervalSeconds: refreshIntervalSeconds };
