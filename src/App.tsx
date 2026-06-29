@@ -8,7 +8,9 @@ import {
   RefreshCw, 
   Sun,
   Moon,
-  Play
+  Play,
+  X,
+  Search
 } from 'lucide-react';
 
 interface SlotData {
@@ -68,6 +70,12 @@ export default function App() {
   const [helperTypes, setHelperTypes] = useState<string[]>(['Elder / High Priest']);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Removal feature state
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [removeSearchTerm, setRemoveSearchTerm] = useState('');
+  const [selectedRemovals, setSelectedRemovals] = useState<any[]>([]);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   // Input ref to hold URL during setup
   const urlInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +189,72 @@ export default function App() {
     }
   };
 
+
+  const matchedRemovals = React.useMemo(() => {
+    if (removeSearchTerm.trim().length < 2 || !sheetData) return [];
+    const term = removeSearchTerm.toLowerCase();
+    const matches: any[] = [];
+    
+    Object.values(sheetData).forEach(tabData => {
+      tabData.slots.forEach(slot => {
+        const addMatches = (entries: string[], type: 'main' | 'wait' | 'helpers') => {
+          entries.forEach((name, idx) => {
+            if (name.toLowerCase().includes(term)) {
+              matches.push({ tab: tabData.sheetName, slot: slot.time, type, name, id: `${tabData.sheetName}-${slot.time}-${type}-${idx}` });
+            }
+          });
+        };
+        addMatches(slot.mainSignedUp, 'main');
+        addMatches(slot.waitSignedUp, 'wait');
+        addMatches(slot.helpersSignedUp, 'helpers');
+      });
+    });
+    return matches;
+  }, [removeSearchTerm, sheetData]);
+
+  const toggleRemovalSelection = (match: any) => {
+    setSelectedRemovals(prev => {
+      if (prev.some(m => m.id === match.id)) {
+        return prev.filter(m => m.id !== match.id);
+      }
+      return [...prev, match];
+    });
+  };
+
+  const handleRemoveSubmit = async () => {
+    if (selectedRemovals.length === 0) return;
+    setIsRemoving(true);
+    try {
+      const payload = {
+        action: 'remove',
+        removals: selectedRemovals.map(m => ({
+          tab: m.tab,
+          slot: m.slot,
+          type: m.type,
+          name: m.name
+        }))
+      };
+      
+      const res = await fetch(appsScriptUrl, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.status === 'success' || data.status === 'success_with_errors') {
+        addToast('success', data.message);
+        setIsRemoveModalOpen(false);
+        setRemoveSearchTerm('');
+        setSelectedRemovals([]);
+        fetchData(false);
+      } else {
+        throw new Error(data.message || 'Error removing names.');
+      }
+    } catch (err: any) {
+      addToast('error', err.message || 'Error removing names');
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
@@ -531,6 +605,39 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      {/* Name Removal Button */}
+      <div style={{ textAlign: 'center', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+        <button
+          onClick={() => {
+            setIsRemoveModalOpen(true);
+            setRemoveSearchTerm('');
+            setSelectedRemovals([]);
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+            color: 'white',
+            border: 'none',
+            padding: '1rem 2rem',
+            borderRadius: '12px',
+            fontSize: '1.15rem',
+            fontWeight: '700',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
+            transition: 'all 0.2s'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.6)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+          }}
+        >
+          Click to Remove my Name from Selected Sessions
+        </button>
+      </div>
 
       {/* Help / Support Notice Banner */}
       <div className="support-notice-banner">
@@ -1034,6 +1141,95 @@ export default function App() {
           );
         })}
       </main>
+
+      {/* Removal Modal */}
+      {isRemoveModalOpen && (
+        <div className="modal-overlay" onClick={() => !isRemoving && setIsRemoveModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Remove My Name</h2>
+              <button className="modal-close-btn" onClick={() => !isRemoving && setIsRemoveModalOpen(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div>
+                <label className="form-label" style={{ fontSize: '1rem', marginBottom: '0.5rem', display: 'block' }}>
+                  Enter a key word in your name
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input
+                    type="text"
+                    className="input-text"
+                    style={{ paddingLeft: '2.5rem', fontSize: '1.1rem' }}
+                    placeholder="e.g. John Doe"
+                    value={removeSearchTerm}
+                    onChange={e => setRemoveSearchTerm(e.target.value)}
+                    disabled={isRemoving}
+                  />
+                </div>
+              </div>
+
+              {removeSearchTerm.length > 0 && removeSearchTerm.length < 2 && (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center' }}>
+                  Please enter at least 2 characters to search...
+                </div>
+              )}
+
+              {removeSearchTerm.length >= 2 && matchedRemovals.length === 0 && (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center' }}>
+                  No matches found for "{removeSearchTerm}"
+                </div>
+              )}
+
+              {matchedRemovals.length > 0 && (
+                <div className="search-results">
+                  {matchedRemovals.map(match => (
+                    <label key={match.id} className="search-result-item">
+                      <input 
+                        type="checkbox"
+                        className="result-checkbox"
+                        checked={selectedRemovals.some(m => m.id === match.id)}
+                        onChange={() => toggleRemovalSelection(match)}
+                        disabled={isRemoving}
+                      />
+                      <div className="result-info">
+                        <span className="result-name">{match.name}</span>
+                        <div className="result-details">
+                          <span className="badge badge-available">{match.tab}</span>
+                          <span>{match.slot}</span>
+                          <span style={{ opacity: 0.8, fontStyle: 'italic', textTransform: 'capitalize' }}>
+                            ({match.type === 'main' ? 'Participant' : match.type === 'wait' ? 'Waitlist' : 'Helper'})
+                          </span>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button 
+                className="btn-cancel"
+                onClick={() => setIsRemoveModalOpen(false)}
+                disabled={isRemoving}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-danger"
+                onClick={handleRemoveSubmit}
+                disabled={isRemoving || selectedRemovals.length === 0}
+              >
+                {isRemoving ? 'Removing...' : 'Remove All Checked Sign-ups'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

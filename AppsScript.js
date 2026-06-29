@@ -28,6 +28,56 @@ function doPost(e) {
   try {
     var wb = SpreadsheetApp.getActiveSpreadsheet();
     var data = JSON.parse(e.postData.contents);
+    var action = data.action || "signup";
+    
+    if (action === "remove") {
+      var removals = data.removals; // Array of { tab, slot, type, name }
+      if (!removals || removals.length === 0) {
+        return makeJSONResponse({ status: "error", message: "No removals specified." });
+      }
+      
+      var errors = [];
+      removals.forEach(function(rem) {
+        var sheet = wb.getSheetByName(rem.tab);
+        if (!sheet) {
+          errors.push("Tab not found: " + rem.tab);
+          return;
+        }
+        var structure = parseSheetStructure(sheet);
+        var slotInfo = structure.slots.find(function(s) { return s.time === rem.slot; });
+        if (!slotInfo) {
+          errors.push("Slot not found: " + rem.slot);
+          return;
+        }
+        var startRow, endRow;
+        if (rem.type === "main") {
+          startRow = slotInfo.mainStartRow;
+          endRow = slotInfo.mainEndRow;
+        } else if (rem.type === "wait") {
+          startRow = slotInfo.waitStartRow;
+          endRow = slotInfo.waitEndRow;
+        } else if (rem.type === "helpers") {
+          startRow = slotInfo.helpersStartRow;
+          endRow = slotInfo.helpersEndRow;
+        }
+        if (!startRow || !endRow) return;
+        
+        var colIndex = slotInfo.colIndex;
+        var colValues = sheet.getRange(startRow, colIndex, endRow - startRow + 1, 1).getValues();
+        for (var i = 0; i < colValues.length; i++) {
+          if (colValues[i][0].toString().trim() === rem.name.trim()) {
+             sheet.getRange(startRow + i, colIndex).clearContent();
+             break;
+          }
+        }
+      });
+      
+      if (errors.length > 0) {
+         return makeJSONResponse({ status: "success_with_errors", message: "Issues: " + errors.join(", ") });
+      }
+      return makeJSONResponse({ status: "success", message: "Successfully removed names!" });
+    }
+    
     var sheet = wb.getSheetByName(data.tab);
     
     if (!sheet) {
