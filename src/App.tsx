@@ -643,7 +643,7 @@ export default function App() {
       <div className="support-notice-banner">
         <Info size={24} style={{ flexShrink: 0 }} />
         <span>
-          If you have trouble signing up, or need to remove your name from any session, please EMAIL <a href="mailto:LansingStake@gmail.com">LansingStake@gmail.com</a>.
+          If you have trouble signing up or have questions, please EMAIL <a href="mailto:LansingStake@gmail.com">LansingStake@gmail.com</a>.
         </span>
       </div>
 
