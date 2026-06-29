@@ -647,24 +647,24 @@ export default function App() {
             setSelectedRemovals([]);
           }}
           style={{
-            background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
-            color: 'white',
+            background: 'linear-gradient(135deg, var(--accent) 0%, #d97706 100%)',
+            color: '#111827',
             border: 'none',
             padding: '1rem 2rem',
             borderRadius: '12px',
             fontSize: '1.15rem',
-            fontWeight: '700',
+            fontWeight: '800',
             cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
+            boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
             transition: 'all 0.2s'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.6)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(245, 158, 11, 0.5)';
           }}
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+            e.currentTarget.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.3)';
           }}
         >
           Click to Remove my Name from Selected Sessions
