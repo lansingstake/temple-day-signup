@@ -76,6 +76,9 @@ export default function App() {
   const [removeSearchTerm, setRemoveSearchTerm] = useState('');
   const [selectedRemovals, setSelectedRemovals] = useState<any[]>([]);
   const [isRemoving, setIsRemoving] = useState(false);
+  
+  // Polling config
+  const refreshIntervalRef = useRef(30000);
 
   // Input ref to hold URL during setup
   const urlInputRef = useRef<HTMLInputElement>(null);
@@ -109,17 +112,21 @@ export default function App() {
     }
   }, []);
 
-  // Poll for data updates every 30 seconds if configured
+  // Poll for data updates dynamically
   useEffect(() => {
     if (!isUrlConfigured || !appsScriptUrl) return;
 
     fetchData(true);
+    let timeoutId: any;
 
-    const interval = setInterval(() => {
-      fetchData(false);
-    }, 30000);
+    const poll = async () => {
+      await fetchData(false);
+      timeoutId = setTimeout(poll, refreshIntervalRef.current);
+    };
 
-    return () => clearInterval(interval);
+    timeoutId = setTimeout(poll, refreshIntervalRef.current);
+
+    return () => clearTimeout(timeoutId);
   }, [isUrlConfigured, appsScriptUrl]);
 
   // Sync validation errors when inputs change
@@ -153,8 +160,13 @@ export default function App() {
 
       if (data.sheets) {
         sheets = data.sheets;
-        if (data.generalInfo && data.generalInfo.date) {
-          dateVal = data.generalInfo.date;
+        if (data.generalInfo) {
+          if (data.generalInfo.date) {
+            dateVal = data.generalInfo.date;
+          }
+          if (data.generalInfo.refreshIntervalSeconds) {
+            refreshIntervalRef.current = data.generalInfo.refreshIntervalSeconds * 1000;
+          }
         }
       } else {
         // Fallback for older Apps Script responses

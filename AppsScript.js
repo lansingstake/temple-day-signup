@@ -205,7 +205,7 @@ function forceAuth() {
   MailApp.getRemainingDailyQuota();
 }
 
-// Parses general info tab to find the event date
+// Parses general info tab to find the event date and refresh interval
 function parseGeneralInfo(sheet) {
   var values = sheet.getDataRange().getDisplayValues();
   var dateStr = "Tuesday, June 30th 2026"; // Fallback
@@ -219,7 +219,15 @@ function parseGeneralInfo(sheet) {
       }
     }
   }
-  return { date: dateStr };
+  
+  // Parse refresh interval from B2 (row 2, col 2 is getRange(2,2))
+  var refreshVal = sheet.getRange(2, 2).getValue();
+  var refreshIntervalSeconds = parseInt(refreshVal, 10);
+  if (isNaN(refreshIntervalSeconds) || refreshIntervalSeconds <= 0) {
+    refreshIntervalSeconds = 30; // Default to 30s
+  }
+  
+  return { date: dateStr, refreshIntervalSeconds: refreshIntervalSeconds };
 }
 
 // Dynamically detects Wait Lists and Helper rows for a sheet
