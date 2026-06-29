@@ -72,6 +72,9 @@ function doPost(e) {
         }
       });
       
+      // Trigger email notification for removals
+      sendNotificationEmail("remove", { entries: removals });
+      
       if (errors.length > 0) {
          return makeJSONResponse({ status: "success_with_errors", message: "Issues: " + errors.join(", ") });
       }
@@ -133,10 +136,15 @@ function doPost(e) {
     }
     
     // Write names to sheet
+    var addedEntries = [];
     for (var i = 0; i < entries.length; i++) {
       var rowToWrite = emptyRowIndices[i];
       sheet.getRange(rowToWrite, colIndex).setValue(entries[i]);
+      addedEntries.push({ name: entries[i], tab: data.tab, slot: slotName, type: type });
     }
+    
+    // Trigger email notification for signups
+    sendNotificationEmail("signup", { entries: addedEntries });
     
     return makeJSONResponse({ status: "success", message: "Successfully signed up!" });
     
@@ -148,6 +156,40 @@ function doPost(e) {
 function makeJSONResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Sends an email notification if configured in the General Info tab
+function sendNotificationEmail(actionType, detailsObj) {
+  try {
+    var wb = SpreadsheetApp.getActiveSpreadsheet();
+    var generalSheet = wb.getSheetByName("General Info");
+    if (!generalSheet) return;
+    
+    // Read configuration from General Info tab
+    var emailAddresses = generalSheet.getRange(7, 2).getValue().toString().trim();
+    if (!emailAddresses) return;
+    
+    var notifyOnSignup = generalSheet.getRange(8, 2).getValue() === true;
+    var notifyOnRemove = generalSheet.getRange(9, 2).getValue() === true;
+    
+    if (actionType === "signup" && !notifyOnSignup) return;
+    if (actionType === "remove" && !notifyOnRemove) return;
+    
+    var subject = "Temple Day Signup: " + (actionType === "signup" ? "New Signup" : "Name Removed");
+    var body = (actionType === "signup" ? "The following names have signed up:\n\n" : "The following names have been removed:\n\n");
+    
+    if (detailsObj.entries && detailsObj.entries.length > 0) {
+      detailsObj.entries.forEach(function(entry) {
+        var typeLabel = entry.type === "main" ? "Participant" : (entry.type === "wait" ? "Waitlist" : "Helper");
+        body += "- " + entry.name + "  |  " + entry.tab + "  |  " + entry.slot + "  |  " + typeLabel + "\n";
+      });
+    }
+    
+    MailApp.sendEmail(emailAddresses, subject, body);
+  } catch (err) {
+    // Silently fail if email fails to avoid breaking the user experience
+    console.error("Email notification failed: " + err.toString());
+  }
 }
 
 // Parses general info tab to find the event date
