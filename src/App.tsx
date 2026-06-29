@@ -1185,8 +1185,29 @@ export default function App() {
               )}
 
               {matchedRemovals.length > 0 && (
-                <div className="search-results">
-                  {matchedRemovals.map(match => (
+                <>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginBottom: '-0.5rem' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => setSelectedRemovals([...matchedRemovals])}
+                      className="btn-cancel" 
+                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', flex: 'none' }}
+                      disabled={isRemoving}
+                    >
+                      Check All
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setSelectedRemovals([])}
+                      className="btn-cancel" 
+                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', flex: 'none' }}
+                      disabled={isRemoving}
+                    >
+                      Uncheck All
+                    </button>
+                  </div>
+                  <div className="search-results">
+                    {matchedRemovals.map(match => (
                     <label key={match.id} className="search-result-item">
                       <input 
                         type="checkbox"
@@ -1208,6 +1229,7 @@ export default function App() {
                     </label>
                   ))}
                 </div>
+                </>
               )}
             </div>
 

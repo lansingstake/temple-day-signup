@@ -987,7 +987,7 @@ body.light-theme .search-result-item:hover {
 .result-checkbox {
   width: 20px;
   height: 20px;
-  accent-color: var(--danger);
+  accent-color: white;
   cursor: pointer;
 }
 
