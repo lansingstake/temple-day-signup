@@ -219,6 +219,16 @@ export default function App() {
         combined.push(selected);
       }
     });
+    
+    // Sort so checked items float to the top
+    combined.sort((a, b) => {
+      const aSelected = selectedRemovals.some(s => s.id === a.id);
+      const bSelected = selectedRemovals.some(s => s.id === b.id);
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      return 0; // maintain original relative order otherwise
+    });
+    
     return combined;
   }, [matchedRemovals, selectedRemovals]);
 

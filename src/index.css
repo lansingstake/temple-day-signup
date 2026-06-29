@@ -937,8 +937,6 @@ body.light-theme .modal-content {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 .search-result-item {
