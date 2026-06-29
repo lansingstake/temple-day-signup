@@ -70,6 +70,7 @@ export default function App() {
   const [helperTypes, setHelperTypes] = useState<string[]>(['Elder / High Priest']);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [refreshLabel, setRefreshLabel] = useState<string>('');
 
   // Removal feature state
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
@@ -169,7 +170,19 @@ export default function App() {
             dateVal = data.generalInfo.date;
           }
           if (data.generalInfo.refreshIntervalSeconds !== undefined) {
-            refreshIntervalRef.current = data.generalInfo.refreshIntervalSeconds * 1000;
+            const seconds = data.generalInfo.refreshIntervalSeconds;
+            refreshIntervalRef.current = seconds * 1000;
+            if (seconds === 0) {
+              setRefreshLabel('Auto-refresh disabled');
+            } else {
+              const m = Math.floor(seconds / 60);
+              const s = seconds % 60;
+              let label = 'Refreshes every ';
+              if (m > 0) label += `${m} minute${m !== 1 ? 's' : ''}`;
+              if (m > 0 && s > 0) label += ' and ';
+              if (s > 0) label += `${s} second${s !== 1 ? 's' : ''}`;
+              setRefreshLabel(label);
+            }
           }
         }
       } else {
@@ -607,25 +620,32 @@ export default function App() {
             <span>How to Video</span>
           </a>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-           <button 
-            onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-            style={{ 
-              background: 'rgba(255,255,255,0.06)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
-              color: 'var(--text-secondary)', 
-              fontSize: '0.8rem', 
-              cursor: 'pointer',
-              padding: '0.35rem 0.75rem',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}
-          >
-            {theme === 'light' ? <Moon size={12} /> : <Sun size={12} />}
-            <span>Mode: {theme === 'light' ? 'Dark' : 'Light'}</span>
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button 
+              onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
+              style={{ 
+                background: 'rgba(255,255,255,0.06)', 
+                border: '1px solid rgba(255,255,255,0.1)', 
+                color: 'var(--text-secondary)', 
+                fontSize: '0.8rem', 
+                cursor: 'pointer',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}
+            >
+              {theme === 'light' ? <Moon size={12} /> : <Sun size={12} />}
+              <span>Mode: {theme === 'light' ? 'Dark' : 'Light'}</span>
+            </button>
+          </div>
+          {refreshLabel && (
+            <div style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600 }}>
+              {refreshLabel}
+            </div>
+          )}
         </div>
       </header>
 
