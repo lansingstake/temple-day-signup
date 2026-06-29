@@ -212,6 +212,16 @@ export default function App() {
     return matches;
   }, [removeSearchTerm, sheetData]);
 
+  const displayedRemovals = React.useMemo(() => {
+    const combined = [...matchedRemovals];
+    selectedRemovals.forEach(selected => {
+      if (!combined.some(m => m.id === selected.id)) {
+        combined.push(selected);
+      }
+    });
+    return combined;
+  }, [matchedRemovals, selectedRemovals]);
+
   const toggleRemovalSelection = (match: any) => {
     setSelectedRemovals(prev => {
       if (prev.some(m => m.id === match.id)) {
@@ -1184,15 +1194,23 @@ export default function App() {
                 </div>
               )}
 
-              {matchedRemovals.length > 0 && (
+              {displayedRemovals.length > 0 && (
                 <>
                   <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginBottom: '-0.5rem' }}>
                     <button 
                       type="button" 
-                      onClick={() => setSelectedRemovals([...matchedRemovals])}
+                      onClick={() => setSelectedRemovals(prev => {
+                        const newSelected = [...prev];
+                        matchedRemovals.forEach(m => {
+                          if (!newSelected.some(s => s.id === m.id)) {
+                            newSelected.push(m);
+                          }
+                        });
+                        return newSelected;
+                      })}
                       className="btn-cancel" 
                       style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', flex: 'none' }}
-                      disabled={isRemoving}
+                      disabled={isRemoving || matchedRemovals.length === 0}
                     >
                       Check All
                     </button>
@@ -1207,7 +1225,7 @@ export default function App() {
                     </button>
                   </div>
                   <div className="search-results">
-                    {matchedRemovals.map(match => (
+                    {displayedRemovals.map(match => (
                     <label key={match.id} className="search-result-item">
                       <input 
                         type="checkbox"
