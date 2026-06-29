@@ -200,6 +200,11 @@ function sendNotificationEmail(actionType, detailsObj) {
   }
 }
 
+// Run this function manually from the editor if Google doesn't ask for email permissions
+function forceAuth() {
+  MailApp.getRemainingDailyQuota();
+}
+
 // Parses general info tab to find the event date
 function parseGeneralInfo(sheet) {
   var values = sheet.getDataRange().getDisplayValues();
