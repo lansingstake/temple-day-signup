@@ -169,8 +169,10 @@ function sendNotificationEmail(actionType, detailsObj) {
     var emailAddresses = generalSheet.getRange(7, 2).getValue().toString().trim();
     if (!emailAddresses) return;
     
-    var notifyOnSignup = generalSheet.getRange(8, 2).getValue() === true;
-    var notifyOnRemove = generalSheet.getRange(9, 2).getValue() === true;
+    var signupVal = generalSheet.getRange(8, 2).getValue();
+    var removeVal = generalSheet.getRange(9, 2).getValue();
+    var notifyOnSignup = (signupVal === true || signupVal.toString().toLowerCase() === "true");
+    var notifyOnRemove = (removeVal === true || removeVal.toString().toLowerCase() === "true");
     
     if (actionType === "signup" && !notifyOnSignup) return;
     if (actionType === "remove" && !notifyOnRemove) return;
@@ -185,7 +187,11 @@ function sendNotificationEmail(actionType, detailsObj) {
       });
     }
     
-    MailApp.sendEmail(emailAddresses, subject, body);
+    MailApp.sendEmail({
+      to: emailAddresses,
+      subject: subject,
+      body: body
+    });
   } catch (err) {
     // Silently fail if email fails to avoid breaking the user experience
     console.error("Email notification failed: " + err.toString());
