@@ -117,21 +117,33 @@ export default function App() {
   useEffect(() => {
     if (!isUrlConfigured || !appsScriptUrl) return;
 
-    fetchData(true);
     let timeoutId: any;
+    let isMounted = true;
 
-    const poll = async () => {
-      await fetchData(false);
+    const startPollingCycle = async () => {
+      // First fetch blocks the polling loop until we get the interval from the server
+      await fetchData(true);
+      if (!isMounted) return;
+
+      const poll = async () => {
+        if (!isMounted) return;
+        await fetchData(false);
+        if (isMounted && refreshIntervalRef.current > 0) {
+          timeoutId = setTimeout(poll, refreshIntervalRef.current);
+        }
+      };
+
       if (refreshIntervalRef.current > 0) {
         timeoutId = setTimeout(poll, refreshIntervalRef.current);
       }
     };
 
-    // The first fetchData call is made above. We want to wait for it to finish and populate the interval
-    // So we use setTimeout to start the polling loop after a brief delay
-    timeoutId = setTimeout(poll, refreshIntervalRef.current > 0 ? refreshIntervalRef.current : 30000);
+    startPollingCycle();
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [isUrlConfigured, appsScriptUrl]);
 
   // Sync validation errors when inputs change
