@@ -1,3 +1,15 @@
+function logChange(wb, actionName, name, sessionName, sessionTime) {
+  try {
+    var logSheet = wb.getSheetByName("Change Log");
+    if (!logSheet) return;
+    
+    var timestamp = Utilities.formatDate(new Date(), wb.getSpreadsheetTimeZone(), "MM/dd/yyyy HH:mm:ss");
+    logSheet.appendRow([timestamp, name, sessionName, sessionTime, actionName]);
+  } catch (e) {
+    // Silently fail if log sheet isn't set up yet
+  }
+}
+
 function doGet() {
   try {
     var wb = SpreadsheetApp.getActiveSpreadsheet();
@@ -67,6 +79,7 @@ function doPost(e) {
         for (var i = 0; i < colValues.length; i++) {
           if (colValues[i][0].toString().trim() === rem.name.trim()) {
              sheet.getRange(startRow + i, colIndex).clearContent();
+             logChange(wb, "Removed", rem.name, rem.tab, rem.slot);
              break;
           }
         }
@@ -141,6 +154,7 @@ function doPost(e) {
       var rowToWrite = emptyRowIndices[i];
       sheet.getRange(rowToWrite, colIndex).setValue(entries[i]);
       addedEntries.push({ name: entries[i], tab: data.tab, slot: slotName, type: type });
+      logChange(wb, "Added", entries[i], data.tab, slotName);
     }
     
     // Trigger email notification for signups
